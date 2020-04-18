@@ -87,32 +87,49 @@ public class ClientEventHandler
 	@SubscribeEvent
     public static void handleKeyInputEvent(KeyInputEvent event)
     {
-		KeyBinding key1 = ClientProxy.openBackpack;
-		KeyBinding key2 = ClientProxy.toggleTank;
-		
-		if(key1.isPressed())
-		{
-			if(Minecraft.getMinecraft().player != null)
+    	if(!ConfigHandler.enableToolCycling)
+    		return;
+
+		KeyBinding openBackpackKey = ClientProxy.openBackpack;
+		KeyBinding toggleTankKey = ClientProxy.toggleTank;
+		KeyBinding cycleToolKey = ClientProxy.cycleTool;
+		EntityPlayer player = Minecraft.getMinecraft().player;
+
+		if(player != null && CapabilityUtils.isWearingBackpack(player)) {
+
+			if(openBackpackKey.isPressed())
 			{
 				TravellersBackpack.NETWORK.sendToServer(new GuiPacket(GuiPacket.Handler.BACKPACK_GUI, GuiPacket.Handler.FROM_KEYBIND));
 			}
-		}
-		
-		if(key2.isPressed())
-		{
-			if(Minecraft.getMinecraft().player != null)
+
+			if(toggleTankKey.isPressed())
 			{
-				if(CapabilityUtils.isWearingBackpack(Minecraft.getMinecraft().player))
+				TravellersBackpack.NETWORK.sendToServer(new CycleToolPacket(0, CycleToolPacket.Handler.TOGGLE_HOSE_TANK));
+			}
+
+			if(cycleToolKey.isPressed())
+			{
+				ItemStack heldItem = player.getHeldItemMainhand();
+
+				if(SlotTool.isValid(heldItem))
 				{
-					TravellersBackpack.NETWORK.sendToServer(new CycleToolPacket(0, CycleToolPacket.Handler.TOGGLE_HOSE_TANK));
+					TravellersBackpack.NETWORK.sendToServer(new CycleToolPacket(1, CycleToolPacket.Handler.CYCLE_TOOL_ACTION));
+				}
+				else if(heldItem.getItem() instanceof ItemHose)
+				{
+					TravellersBackpack.NETWORK.sendToServer(new CycleToolPacket(1, CycleToolPacket.Handler.SWITCH_HOSE_ACTION));
 				}
 			}
+
 		}
     }
 	
 	@SubscribeEvent
     public static void mouseWheelDetect(MouseEvent event)
     {
+    	if(!ConfigHandler.enableWheelCycling)
+    		return;
+
 		Minecraft mc = Minecraft.getMinecraft();
 	    int dWheel = event.getDwheel();
 	        
@@ -129,7 +146,7 @@ public class ClientEventHandler
 	    			if(player.getHeldItemMainhand() != null)
 	    			{
 	    				ItemStack heldItem = player.getHeldItemMainhand();
-	
+
 	    				if(ConfigHandler.enableToolCycling)
 	    				{
 	    					if(SlotTool.isValid(heldItem))

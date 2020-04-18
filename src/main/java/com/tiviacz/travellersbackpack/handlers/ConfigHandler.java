@@ -14,9 +14,12 @@ public class ConfigHandler
 	@Comment("Places backpack at place where player died")
 	public static boolean backpackDeathPlace = true;
 	
-	@Comment("Enables tool cycling via shift + scroll combination, while backpack is worn")
+	@Comment("Enables tool cycling while backpack is worn")
 	public static boolean enableToolCycling = true;
-	
+
+	@Comment("Enables shift + scroll shortcut for tool and hose nozzle cycling")
+	public static boolean enableWheelCycling = true;
+
 	public static boolean toolSlotsAcceptSwords = false;
 	
 	@Comment("Render tools in tool slots on the backpack, while worn")
